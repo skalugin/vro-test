@@ -1,76 +1,87 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="46c63ca7-a1d3-462e-b800-a4c710620daf" editor-version="2.0" version="1.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
-    <display-name>Copy of Create Project</display-name>
-    <description>Creates a project.</description>
-    <position y="50.0" x="100.0"/>
-    <input>
-        <param name="name" type="string">
-            <description>Name of the project</description>
-        </param>
-        <param name="description" type="string">
-            <description>A short description of the project</description>
-        </param>
-        <param name="placementPolicy" type="string">
-            <description>Compute resources placement policy in the cloud zones</description>
-        </param>
-        <param name="newTags" type="Array/string">
-            <description>New tags to be added to a project resource metadata</description>
-        </param>
-        <param name="newNetworkConstraints" type="Array/string">
-            <description>New network constraints</description>
-        </param>
-        <param name="newStorageConstraints" type="Array/string">
-            <description>New storage constraints</description>
-        </param>
-        <param name="newExtensibilityConstraints" type="Array/string">
-            <description>New extensibility constraints</description>
-        </param>
-        <param name="customProperties" type="Array/CompositeType(key:string,value:string,encrypted:boolean):customProperties">
-            <description>Custom properties that should be added to all requests in this project</description>
-        </param>
-        <param name="namngTemplate" type="string">
-            <description>Naming template to be used for machines, networks, security groups and disks provisioned in this project</description>
-        </param>
-        <param name="timeout" type="string">
-            <description>Deployment requests timeout</description>
-        </param>
-        <param name="host" type="VRA:Host">
-            <description>Host Entity</description>
-        </param>
-        <param name="cloudZones" type="Array/CompositeType(cloudZone:VRA:Zone,provisioningPriority:number,instancesLimit:number,memoryLimitMB:number,cpuLimit:number,storageLimitGB:number):projectCloudZones">
-            <description>Cloud zones that can be used when users provision deployments in this project.</description>
-        </param>
-    </input>
-    <output>
-        <param name="outputProject" type="VRA:Project">
-            <description>Output Project Entity</description>
-        </param>
-    </output>
-    <attrib name="project" type="VRA:Project">
-        <value encoded="n"/>
-        <description>Output Project Entity</description>
-    </attrib>
-    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
-        <in-binding/>
-        <position y="50.0" x="480.0"/>
-    </workflow-item>
-    <workflow-item name="item1" out-name="item2" throw-bind-name="" type="task" comparator="0">
-        <display-name>Create Project</display-name>
-        <script encoded="false">var projectSpecification = new VraProjectSpecification();
+  <display-name>Copy of Create Project</display-name>
+  <description>Creates a project.</description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="name" type="string">
+      <description>Name of the project</description>
+    </param>
+    <param name="description" type="string">
+      <description>A short description of the project</description>
+    </param>
+    <param name="placementPolicy" type="string">
+      <description>Compute resources placement policy in the cloud zones</description>
+    </param>
+    <param name="newTags" type="Array/string">
+      <description>New tags to be added to a project resource metadata</description>
+    </param>
+    <param name="newNetworkConstraints" type="Array/string">
+      <description>New network constraints</description>
+    </param>
+    <param name="newStorageConstraints" type="Array/string">
+      <description>New storage constraints</description>
+    </param>
+    <param name="newExtensibilityConstraints" type="Array/string">
+      <description>New extensibility constraints</description>
+    </param>
+    <param name="customProperties" type="Array/CompositeType(key:string,value:string,encrypted:boolean):customProperties">
+      <description>Custom properties that should be added to all requests in this project</description>
+    </param>
+    <param name="namngTemplate" type="string">
+      <description>Naming template to be used for machines, networks, security groups and disks provisioned in this project</description>
+    </param>
+    <param name="timeout" type="string">
+      <description>Deployment requests timeout</description>
+    </param>
+    <param name="host" type="VRA:Host">
+      <description>Host Entity</description>
+    </param>
+    <param name="cloudZones" type="Array/CompositeType(cloudZone:VRA:Zone,provisioningPriority:number,instancesLimit:number,memoryLimitMB:number,cpuLimit:number,storageLimitGB:number):projectCloudZones">
+      <description>Cloud zones that can be used when users provision deployments in this project.</description>
+    </param>
+  </input>
+  <output>
+    <param name="outputProject" type="VRA:Project">
+      <description>Output Project Entity</description>
+    </param>
+  </output>
+  <attrib name="project" type="VRA:Project">
+    <value encoded="n"/>
+    <description>Output Project Entity</description>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+    <in-binding/>
+    <position y="50.0" x="480.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" throw-bind-name="" type="task" comparator="0">
+    <display-name>Create Project</display-name>
+    <script encoded="false"><![CDATA[/* global name:readonly,
+ description:readonly,
+ host:readonly,
+ namngTemplate:readonly,
+ timeout:readonly,
+ placementPolicy:readonly,
+ customProperties:readonly,
+ newExtensibilityConstraints:readonly,
+ newNetworkConstraints:readonly,
+ newStorageConstraints:readonly,
+ cloudZones:readonly,
+ project:writable */
+
+var projectSpecification = new VraProjectSpecification();
 projectSpecification.name = name;
 projectSpecification.description = description;
 projectSpecification.placementPolicy = placementPolicy;
 projectSpecification.machineNamingTemplate = namngTemplate;
-
 var requestTimeoutInSeconds = System.getModule("com.vmware.library.vra.infrastructure.util")
                                     .convertTimeoutToSec(timeout, true);
 projectSpecification.operationTimeout = requestTimeoutInSeconds;
-
 //Addition of zones to project.
-if (cloudZones != null &amp;&amp; cloudZones.length == 0) {
+if (cloudZones != null && cloudZones.length == 0) {
     projectSpecification.zoneAssignmentConfigurations = [];
-} else if (cloudZones != null &amp;&amp; cloudZones.length &gt; 0) {
-    for (var i = 0; i &lt; cloudZones.length; i++) {
+} else if (cloudZones != null && cloudZones.length > 0) {
+    for (var i = 0; i < cloudZones.length; i++) {
         var zoneAssignmentConfiguration = new VraZoneAssignmentConfig();
         zoneAssignmentConfiguration.zoneId = cloudZones[i]['cloudZone'].id;
         zoneAssignmentConfiguration.priority = cloudZones[i]['provisioningPriority'];
@@ -86,20 +97,16 @@ if (cloudZones != null &amp;&amp; cloudZones.length == 0) {
         projectSpecification.addZoneAssignmentConfigurationsItem(zoneAssignmentConfiguration);
     }
 }
-
 //Addition of network constraints.
 addConstraints("network", newNetworkConstraints, projectSpecification);
-
 //Addition of storage constraints.
 addConstraints("storage", newStorageConstraints, projectSpecification);
-
 //Addition of extensibility constraints.
 addConstraints("extensibility", newExtensibilityConstraints, projectSpecification);
-
 var customPropertiesJson = JSON.stringify(customProperties);
 var customPropertiesParsed = JSON.parse(customPropertiesJson);
-if(customPropertiesParsed != null &amp;&amp; customPropertiesParsed.length &gt; 0){
-    for (var i = 0; i &lt; customPropertiesParsed.length; i++) {
+if(customPropertiesParsed != null && customPropertiesParsed.length > 0){
+    for (var i = 0; i < customPropertiesParsed.length; i++) {
         var value = customPropertiesParsed[i]['value'];
         if(customPropertiesParsed[i]['encrypted']){
             value = "((sensitive:" + value + "))";
@@ -113,14 +120,11 @@ if (!project || !project.id || !project.name) {
     throw "Project Create operation failed. Please check the system logs for more details."
 }
 var projectName = project.name;
-
 System.log("Project: " + projectName + " created successfully");
-
 function addConstraints(type, newConstraints, projectSpecification) {
     var nConstraintObjectsArray = new Array();
-    
-    if(newConstraints &amp;&amp; newConstraints.length &gt;0){
-        for(var i=0;i&lt;newConstraints.length;i++){
+    if(newConstraints && newConstraints.length >0){
+        for(var i=0;i<newConstraints.length;i++){
             var constraintObj = new VraConstraint();
             constraintObj.expression = newConstraints[i];
             constraintObj.mandatory = true;
@@ -128,46 +132,46 @@ function addConstraints(type, newConstraints, projectSpecification) {
         }
     }
     //Addition of type constraints.
-    if(nConstraintObjectsArray &amp;&amp; nConstraintObjectsArray.length &gt;0){
+    if(nConstraintObjectsArray && nConstraintObjectsArray.length >0){
         projectSpecification.putConstraintsItem(type,nConstraintObjectsArray);
     }
     return projectSpecification;
-}</script>
-        <in-binding>
-            <bind name="name" type="string" export-name="name"/>
-            <bind name="description" type="string" export-name="description"/>
-            <bind name="host" type="VRA:Host" export-name="host"/>
-            <bind name="namngTemplate" type="string" export-name="namngTemplate"/>
-            <bind name="timeout" type="string" export-name="timeout"/>
-            <bind name="placementPolicy" type="string" export-name="placementPolicy"/>
-            <bind name="customProperties" type="Array/CompositeType(key:string,value:string,encrypted:boolean):customProperties" export-name="customProperties"/>
-            <bind name="newExtensibilityConstraints" type="Array/string" export-name="newExtensibilityConstraints"/>
-            <bind name="newNetworkConstraints" type="Array/string" export-name="newNetworkConstraints"/>
-            <bind name="newStorageConstraints" type="Array/string" export-name="newStorageConstraints"/>
-            <bind name="cloudZones" type="Array/CompositeType(cloudZone:VRA:Zone,provisioningPriority:number,instancesLimit:number,memoryLimitMB:number,cpuLimit:number,storageLimitGB:number):projectCloudZones" export-name="cloudZones"/>
-        </in-binding>
-        <out-binding>
-            <bind name="project" type="VRA:Project" export-name="project"/>
-        </out-binding>
-        <description>Simple task with custom script capability.</description>
-        <position y="60.0" x="180.0"/>
-    </workflow-item>
-    <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="acd39fd3-345c-4650-9a29-454e07ab86c1" comparator="0">
-        <display-name>Update Project Resource Metadata</display-name>
-        <in-binding>
-            <bind name="projectInput" type="VRA:Project" export-name="project">
-                <description>Project Entity</description>
-            </bind>
-            <bind name="newTags" type="Array/string" export-name="newTags">
-                <description>New tags to be added to a project resource metadata</description>
-            </bind>
-        </in-binding>
-        <out-binding>
-            <bind name="outputProject" type="VRA:Project" export-name="outputProject">
-                <description>Output Project Entity</description>
-            </bind>
-        </out-binding>
-        <description> </description>
-        <position y="60.0" x="280.0"/>
-    </workflow-item>
+}]]></script>
+    <in-binding>
+      <bind name="name" type="string" export-name="name"/>
+      <bind name="description" type="string" export-name="description"/>
+      <bind name="host" type="VRA:Host" export-name="host"/>
+      <bind name="namngTemplate" type="string" export-name="namngTemplate"/>
+      <bind name="timeout" type="string" export-name="timeout"/>
+      <bind name="placementPolicy" type="string" export-name="placementPolicy"/>
+      <bind name="customProperties" type="Array/CompositeType(key:string,value:string,encrypted:boolean):customProperties" export-name="customProperties"/>
+      <bind name="newExtensibilityConstraints" type="Array/string" export-name="newExtensibilityConstraints"/>
+      <bind name="newNetworkConstraints" type="Array/string" export-name="newNetworkConstraints"/>
+      <bind name="newStorageConstraints" type="Array/string" export-name="newStorageConstraints"/>
+      <bind name="cloudZones" type="Array/CompositeType(cloudZone:VRA:Zone,provisioningPriority:number,instancesLimit:number,memoryLimitMB:number,cpuLimit:number,storageLimitGB:number):projectCloudZones" export-name="cloudZones"/>
+    </in-binding>
+    <out-binding>
+      <bind name="project" type="VRA:Project" export-name="project"/>
+    </out-binding>
+    <description>Simple task with custom script capability.</description>
+    <position y="60.0" x="180.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="acd39fd3-345c-4650-9a29-454e07ab86c1" comparator="0">
+    <display-name>Update Project Resource Metadata</display-name>
+    <in-binding>
+      <bind name="projectInput" type="VRA:Project" export-name="project">
+        <description>Project Entity</description>
+      </bind>
+      <bind name="newTags" type="Array/string" export-name="newTags">
+        <description>New tags to be added to a project resource metadata</description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="outputProject" type="VRA:Project" export-name="outputProject">
+        <description>Output Project Entity</description>
+      </bind>
+    </out-binding>
+    <description> </description>
+    <position y="60.0" x="280.0"/>
+  </workflow-item>
 </ns2:workflow>
